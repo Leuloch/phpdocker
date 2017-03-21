@@ -25,6 +25,40 @@ MAINTAINER Mahmoud Zalt <mahmoud@zalt.me>
 # base image (https://github.com/LaraDock/php-fpm).
 #
 
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libpspell-dev \
+        aspell-en
+
+
+#####################################
+# Ghostscript:
+#####################################
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        fontconfig
+
+ADD ./ghostscript-9.20.tar.gz /tmp/
+
+RUN cd /tmp/ghostscript-9.20 && \
+    ./configure --prefix=/usr --enable-dynamic --disable-compile-inits --with-system-libtiff && \
+    make && \
+    make so && \
+    make install && \
+    mkdir /usr/include/ghostscript/ && \
+    chmod go+w /usr/include/ghostscript/ && \
+    make soinstall && \
+    install -v -m644 base/*.h /usr/include/ghostscript && \
+    ln -v -s ghostscript /usr/include/ps && \
+    ln -sfv ../ghostscript/9.20/doc /usr/share/doc/ghostscript-9.20
+
+ADD ./ghostscript-fonts-std-8.11.tar.gz /usr/share/ghostscript
+
+RUN fc-cache -v /usr/share/ghostscript/fonts/ && \
+    chmod go-w /usr/include/ghostscript/ && \
+    gs -v
+
 #
 #--------------------------------------------------------------------------
 # Optional Software's Installation
@@ -98,6 +132,16 @@ RUN if [ ${INSTALL_BCMATH} = true ]; then \
 ;fi
 
 #####################################
+# pspell:
+#####################################
+
+ARG INSTALL_PSPELL=false
+RUN if [ ${INSTALL_PSPELL} = true ]; then \
+    # Install the pspell extension
+    docker-php-ext-install pspell \
+;fi
+
+#####################################
 # PHP Memcached:
 #####################################
 
@@ -151,6 +195,8 @@ COPY ./opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 ARG INSTALL_MYSQLI=false
 RUN if [ ${INSTALL_MYSQLI} = true ]; then \  
      docker-php-ext-install mysqli \
+         pdo \
+         mysql \
 ;fi
 
 #####################################
