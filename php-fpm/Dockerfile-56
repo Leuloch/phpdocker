@@ -59,6 +59,34 @@ RUN fc-cache -v /usr/share/ghostscript/fonts/ && \
     chmod go-w /usr/include/ghostscript/ && \
     gs -v
 
+#####################################
+# sSMTP for mail support:
+#####################################
+
+RUN apt-get update \
+    && apt-get install -y -q --no-install-recommends \
+        ssmtp \
+    && apt-get clean
+
+COPY ./ssmtp.conf /etc/ssmtp/ssmtp.conf
+
+ARG MAIL_HOST=smtp.gmail.com
+ARG HOSTNAME=gmail.com
+ARG MAIL_USER=username@example.com
+ARG MAIL_PASSWORD=password
+
+ENV MAIL_HOST=$MAIL_HOST
+ENV HOSTNAME=$HOSTNAME
+ENV MAIL_USER=$MAIL_USER
+ENV MAIL_PASSWORD=$MAIL_PASSWORD
+
+RUN sed -i 's/CONFIG_MAILHUB/'$MAIL_HOST'/g' /etc/ssmtp/ssmtp.conf && \
+    sed -i 's/CONFIG_HOSTNAME/'$HOSTNAME'/g' /etc/ssmtp/ssmtp.conf && \
+    sed -i 's/CONFIG_USERNAME/'$MAIL_USER'/g' /etc/ssmtp/ssmtp.conf && \
+    sed -i 's/CONFIG_PASSWORD/'$MAIL_PASSWORD'/g' /etc/ssmtp/ssmtp.conf
+
+COPY ./mail.ini   /usr/local/etc/php/conf.d/mail.ini
+
 #
 #--------------------------------------------------------------------------
 # Optional Software's Installation

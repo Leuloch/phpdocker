@@ -61,6 +61,10 @@ services:
                 - INSTALL_TOKENIZER=${PHP_FPM_INSTALL_TOKENIZER}
                 - INSTALL_INTL=${PHP_FPM_INSTALL_INTL}
                 - INSTALL_PSPELL=${PHP_FPM_INSTALL_PSPELL}
+                - MAIL_HOST=${PHP_FPM_MAIL_HOST}
+                - HOSTNAME=${PHP_FPM_HOSTNAME}
+                - MAIL_USER=${PHP_FPM_MAIL_USER}
+                - MAIL_PASSWORD=${PHP_FPM_MAIL_PASSWORD}
             dockerfile: ${PHP_FPM_DOCKER_FILE}
         volumes_from:
             - applications
