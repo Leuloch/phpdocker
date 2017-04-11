@@ -112,6 +112,15 @@ services:
         ports:
             - "${MYSQL_PORT}:3306"
 
+### Redis Container #########################################
+
+    redis:
+        build: ./redis
+        volumes:
+            - redis:/data
+        ports:
+            - "6379:6379"
+
 ### Memcached Container #####################################
 
     memcached:
@@ -129,4 +138,6 @@ volumes:
     mysql:
         driver: "local"
     memcached:
+        driver: "local"
+    redis:
         driver: "local"
